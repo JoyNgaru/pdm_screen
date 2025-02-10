@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "422647686551",
+    "project_id": "pdm-screen",
+    "storage_bucket": "pdm-screen.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:422647686551:android:487dd71332cad872d610d2",
+        "android_client_info": {
+          "package_name": "com.iotron.pdmscreen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGjEGvq54ZkF90j9lk_oIUN8uNvIrKpYY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

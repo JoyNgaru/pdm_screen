@@ -1,0 +1,50 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin" // Flutter Gradle Plugin must be applied last
+}
+
+android {
+    namespace = "com.iotron.pdmscreen"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    defaultConfig {
+        applicationId = "com.iotron.pdmscreen"
+        minSdk = 23
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug // Change to your own signing config if needed
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:32.7.2') // 🔥 Use Firebase BOM
+    implementation 'com.google.firebase:firebase-auth'  // Firebase Authentication
+    implementation 'com.google.firebase:firebase-firestore'  // Firestore (if needed)
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+}
+
+// Ensure this is at the bottom
+apply plugin: 'com.google.gms.google-services'
