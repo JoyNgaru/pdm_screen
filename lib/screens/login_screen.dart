@@ -37,12 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
   // Google Sign-In
   Future<void> googleLogin() async {
     try {
-      await FirebaseAuth.instance.signOut(); // ✅ Ensures fresh login
-      await GoogleSignIn().disconnect();
-      await GoogleSignIn().signOut();
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut(); // ✅ Ensure sign-out before sign-in
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return; // User canceled
+      if (googleUser == null) return; // User canceled login
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
@@ -52,14 +51,15 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // ✅ Redirect to AuthWrapper() instead of HomeScreen()
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AuthWrapper()), // ✅ Refresh UI
+        MaterialPageRoute(builder: (context) => AuthWrapper()),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Google Login failed: $e")),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Google Login failed: $e")));
     }
   }
 
