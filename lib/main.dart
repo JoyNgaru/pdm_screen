@@ -7,26 +7,25 @@ import 'screens/login_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint("Firebase initialization error: $e");
+  }
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'PD Monitor',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: AuthWrapper(),
+      home: const AuthWrapper(),
     );
   }
 }
@@ -43,17 +42,15 @@ class _AuthWrapperState extends State<AuthWrapper> {
   void initState() {
     super.initState();
     FirebaseAuth.instance.authStateChanges().listen((user) {
-      Future.microtask(() {
-        if (mounted) {
-          setState(() {}); // ✅ Ensures UI updates immediately
-        }
-      });
+      if (mounted) {
+        setState(() {}); // ✅ Ensures UI updates immediately
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    return user == null ? LoginScreen() : HomeScreen();
+    return user == null ? const LoginScreen() : const HomeScreen();
   }
 }

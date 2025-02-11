@@ -2,6 +2,8 @@
 application
 INJECTED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:2:5-33:19
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml
+MERGED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
+MERGED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
 MERGED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
 MERGED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
 MERGED from [:firebase_core] /home/j0y/pdm_screen/build/firebase_core/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
@@ -58,6 +60,7 @@ MERGED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:1:1-45
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml:1:1-7:12
+MERGED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-15:12
 MERGED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-15:12
 MERGED from [:firebase_core] /home/j0y/pdm_screen/build/firebase_core/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-15:12
 MERGED from [:google_sign_in_android] /home/j0y/pdm_screen/build/google_sign_in_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-9:12
@@ -146,6 +149,8 @@ uses-sdk
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml
+MERGED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:firebase_core] /home/j0y/pdm_screen/build/firebase_core/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
@@ -257,7 +262,9 @@ MERGED from [com.google.android.play:core-common:2.0.3] /home/j0y/.gradle/caches
 	android:minSdkVersion
 		INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml
 service#com.google.firebase.components.ComponentDiscoveryService
-ADDED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:8:9-12:19
+ADDED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:8:9-12:19
+MERGED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:8:9-12:19
+MERGED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:8:9-12:19
 MERGED from [:firebase_core] /home/j0y/pdm_screen/build/firebase_core/intermediates/merged_manifest/debug/AndroidManifest.xml:8:9-12:19
 MERGED from [:firebase_core] /home/j0y/pdm_screen/build/firebase_core/intermediates/merged_manifest/debug/AndroidManifest.xml:8:9-12:19
 MERGED from [com.google.firebase:firebase-firestore:25.1.1] /home/j0y/.gradle/caches/transforms-3/6c7bbb97b7c34fc97fcc97c431f8ba7e/transformed/jetified-firebase-firestore-25.1.1/AndroidManifest.xml:14:9-23:19
@@ -275,7 +282,13 @@ MERGED from [com.google.firebase:firebase-common:21.0.0] /home/j0y/.gradle/cache
 	android:directBootAware
 		ADDED from [com.google.firebase:firebase-common:21.0.0] /home/j0y/.gradle/caches/transforms-3/d5418937e91921d6f4990d3a8e405bf2/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:32:13-43
 	android:name
-		ADDED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:8:18-89
+		ADDED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:8:18-89
+meta-data#com.google.firebase.components:io.flutter.plugins.firebase.firestore.FlutterFirebaseFirestoreRegistrar
+ADDED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:9:13-11:85
+	android:value
+		ADDED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:11:17-82
+	android:name
+		ADDED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:10:17-134
 meta-data#com.google.firebase.components:io.flutter.plugins.firebase.auth.FlutterFirebaseAuthRegistrar
 ADDED from [:firebase_auth] /home/j0y/pdm_screen/build/firebase_auth/intermediates/merged_manifest/debug/AndroidManifest.xml:9:13-11:85
 	android:value

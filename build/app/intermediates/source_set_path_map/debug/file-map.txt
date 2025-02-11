@@ -32,6 +32,7 @@ com.iotron.pdmscreen.app-resValues-30 /home/j0y/pdm_screen/build/app/generated/r
 com.iotron.pdmscreen.app-packageDebugResources-31 /home/j0y/pdm_screen/build/app/intermediates/incremental/debug/packageDebugResources/merged.dir
 com.iotron.pdmscreen.app-packageDebugResources-32 /home/j0y/pdm_screen/build/app/intermediates/incremental/debug/packageDebugResources/stripped.dir
 com.iotron.pdmscreen.app-merged_res-33 /home/j0y/pdm_screen/build/app/intermediates/merged_res/debug
-com.iotron.pdmscreen.app-packaged_res-34 /home/j0y/pdm_screen/build/firebase_auth/intermediates/packaged_res/debug
-com.iotron.pdmscreen.app-packaged_res-35 /home/j0y/pdm_screen/build/firebase_core/intermediates/packaged_res/debug
-com.iotron.pdmscreen.app-packaged_res-36 /home/j0y/pdm_screen/build/google_sign_in_android/intermediates/packaged_res/debug
+com.iotron.pdmscreen.app-packaged_res-34 /home/j0y/pdm_screen/build/cloud_firestore/intermediates/packaged_res/debug
+com.iotron.pdmscreen.app-packaged_res-35 /home/j0y/pdm_screen/build/firebase_auth/intermediates/packaged_res/debug
+com.iotron.pdmscreen.app-packaged_res-36 /home/j0y/pdm_screen/build/firebase_core/intermediates/packaged_res/debug
+com.iotron.pdmscreen.app-packaged_res-37 /home/j0y/pdm_screen/build/google_sign_in_android/intermediates/packaged_res/debug
