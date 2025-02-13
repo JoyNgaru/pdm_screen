@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'patient_home_screen.dart';
+import 'doctor_home_screen.dart';
+import 'caregiver_home_screen.dart';
 import 'register_screen.dart';
-import '../main.dart'; // Import AuthWrapper
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,88 +18,128 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Email/Password Login
   Future<void> login() async {
     try {
-      await _auth.signInWithEmailAndPassword(
+      debugPrint("🔄 Attempting login for: ${emailController.text}");
+
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      User? user = userCredential.user;
+      if (user == null) {
+        debugPrint("❌ Login failed, user is null");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Login failed, please try again.")),
+        );
+        return;
+      }
+
+      debugPrint("✅ Login successful! UID: ${user.uid}");
+
+      // Fetch user data from Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        debugPrint("❌ User data not found in Firestore.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User data not found. Contact admin.")),
+        );
+        return;
+      }
+
+      Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+      String role = userData?['role']?.toString().toLowerCase() ?? "";
+      String username = userData?['username'] ??
+          emailController.text.split('@')[0]; // Default to email username
+      String userId = user.uid; // Firebase UID
+
+      if (role.isEmpty) {
+        debugPrint("❌ Missing user role in Firestore");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User role missing. Contact admin.")),
+        );
+        return;
+      }
+
+      debugPrint("✅ Role: $role, Username: $username, User ID: $userId");
+
+      // Redirect based on role
+      Widget homeScreen;
+      switch (role) {
+        case 'patient':
+          homeScreen = PatientHomeScreen(username: username, userId: userId);
+          break;
+        case 'doctor':
+          homeScreen = DoctorHomeScreen(username: username, userId: userId);
+          break;
+        case 'caregiver':
+          homeScreen = CaregiverHomeScreen(username: username, userId: userId);
+          break;
+        default:
+          debugPrint("❌ Invalid role: $role");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Invalid role. Contact admin.")),
+          );
+          return;
+      }
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AuthWrapper()), // ✅ Refresh UI
+        MaterialPageRoute(builder: (context) => homeScreen),
       );
     } catch (e) {
+      debugPrint("❌ Firebase Login Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Login failed: $e")),
       );
     }
   }
 
-  // Google Sign-In
-  Future<void> googleLogin() async {
-    try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      await googleSignIn.signOut(); // ✅ Ensure sign-out before sign-in
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
-      if (googleUser == null) return; // User canceled login
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-      // ✅ Redirect to AuthWrapper() instead of HomeScreen()
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => AuthWrapper()),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Google Login failed: $e")));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
+      appBar: AppBar(title: const Text("PD Monitor")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Text(
+              "Welcome to PD Monitor",
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: "Email"),
+              decoration: const InputDecoration(labelText: "Email"),
               keyboardType: TextInputType.emailAddress,
             ),
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(labelText: "Password"),
+              decoration: const InputDecoration(labelText: "Password"),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: login, child: Text("Login")),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: googleLogin,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text("Login with Google",
-                  style: TextStyle(color: Colors.white)),
-            ),
-            SizedBox(height: 10),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: login, child: const Text("Login")),
+            const SizedBox(height: 10),
             TextButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => RegisterScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const RegisterScreen()),
+                );
               },
-              child: Text("Don't have an account? Register here"),
+              child: const Text("Don't have an account? Register"),
             ),
           ],
         ),

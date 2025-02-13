@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_screen.dart';
+import '../main.dart'; // Import AuthWrapper
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,8 +13,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController linkedIdController =
-      TextEditingController(); // For linking caregivers & doctors to patients
+  final TextEditingController linkedIdController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -23,9 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Function to generate a unique ID based on role
   String generateUniqueId(String role) {
-    String prefix = role
-        .substring(0, 1)
-        .toUpperCase(); // P for Patient, C for Caregiver, D for Doctor
+    String prefix = role.substring(0, 1).toUpperCase(); // P, C, or D
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     return '$prefix$timestamp';
   }
@@ -33,45 +30,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Register User
   Future<void> register() async {
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
+      String email = emailController.text.trim();
+      String password = passwordController.text.trim();
+      String linkedId = linkedIdController.text.trim();
 
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
       String uid = userCredential.user!.uid;
       generatedId = generateUniqueId(selectedRole);
 
-      // Store user details in Firestore
-      await _firestore.collection('users').doc(uid).set({
-        'email': emailController.text.trim(),
+      // Prepare Firestore document
+      Map<String, dynamic> userData = {
+        'uid': uid,
+        'email': email,
         'role': selectedRole,
-        'id': generatedId,
-        if (selectedRole == 'Patient')
-          'caregiverId': linkedIdController.text.trim(),
-        if (selectedRole == 'Patient')
-          'doctorId': linkedIdController.text.trim(),
-        if (selectedRole == 'Caregiver')
-          'patientId': linkedIdController.text.trim(),
-        if (selectedRole == 'Doctor')
-          'patientId': linkedIdController.text.trim(),
-      });
+      };
 
+      // Add the correct ID field based on role
+      if (selectedRole == 'Patient') {
+        userData['pid'] = generatedId;
+        if (linkedId.isNotEmpty) userData['caregiverId'] = linkedId;
+      } else if (selectedRole == 'Caregiver') {
+        userData['cid'] = generatedId;
+        if (linkedId.isNotEmpty) userData['patientId'] = linkedId;
+      } else if (selectedRole == 'Doctor') {
+        userData['did'] = generatedId;
+        if (linkedId.isNotEmpty) userData['patientId'] = linkedId;
+      }
+
+      // Store user in Firestore
+      await _firestore.collection('users').doc(uid).set(userData);
+
+      debugPrint("✅ Registration successful! Redirecting to AuthWrapper.");
+
+      // Navigate to AuthWrapper (which will redirect based on role)
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => AuthWrapper()),
       );
     } catch (e) {
+      debugPrint("❌ Registration Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Registration failed: $e")),
+        SnackBar(content: Text("Registration failed: ${e.toString()}")),
       );
     }
   }
 
   @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    linkedIdController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Register")),
+      appBar: AppBar(title: const Text("Register")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -79,14 +95,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
           children: [
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: "Email"),
+              decoration: const InputDecoration(labelText: "Email"),
             ),
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(labelText: "Password"),
+              decoration: const InputDecoration(labelText: "Password"),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Role Selection Dropdown
             DropdownButtonFormField<String>(
               value: selectedRole,
@@ -99,10 +115,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   selectedRole = value!;
                 });
               },
-              decoration: InputDecoration(labelText: "Select Role"),
+              decoration: const InputDecoration(labelText: "Select Role"),
             ),
-            SizedBox(height: 10),
-            // Show linked ID input field only for Patients, Caregivers, and Doctors
+            const SizedBox(height: 10),
+            // Show linked ID input field only for Caregivers & Doctors
             if (selectedRole != 'Patient')
               TextField(
                 controller: linkedIdController,
@@ -112,14 +128,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       : "Enter Patient ID (PID)",
                 ),
               ),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: register, child: Text("Register")),
-            SizedBox(height: 10),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: register, child: const Text("Register")),
+            const SizedBox(height: 10),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text("Already have an account? Login"),
+              child: const Text("Already have an account? Login"),
             ),
           ],
         ),
