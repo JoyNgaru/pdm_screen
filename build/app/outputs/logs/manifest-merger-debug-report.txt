@@ -1,6 +1,6 @@
 -- Merging decision tree log ---
 application
-INJECTED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:2:5-33:19
+INJECTED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:2:5-37:19
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml
 MERGED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
 MERGED from [:cloud_firestore] /home/j0y/pdm_screen/build/cloud_firestore/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-13:19
@@ -55,8 +55,8 @@ MERGED from [com.google.android.play:core-common:2.0.3] /home/j0y/.gradle/caches
 	android:name
 		INJECTED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml
 manifest
-ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:1:1-45:12
-MERGED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:1:1-45:12
+ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:1:1-49:12
+MERGED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:1:1-49:12
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 INJECTED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml:1:1-7:12
@@ -122,17 +122,17 @@ MERGED from [com.google.android.play:core-common:2.0.3] /home/j0y/.gradle/caches
 	xmlns:android
 		ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:1:11-69
 queries
-ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:39:5-44:15
+ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:43:5-48:15
 intent#action:name:android.intent.action.PROCESS_TEXT+data:mimeType:text/plain
-ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:40:9-43:18
+ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:44:9-47:18
 action#android.intent.action.PROCESS_TEXT
-ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:41:13-72
+ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:45:13-72
 	android:name
-		ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:41:21-70
+		ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:45:21-70
 data
-ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:42:13-50
+ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:46:13-50
 	android:mimeType
-		ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:42:19-48
+		ADDED from /home/j0y/pdm_screen/android/app/src/main/AndroidManifest.xml:46:19-48
 uses-permission#android.permission.INTERNET
 ADDED from /home/j0y/pdm_screen/android/app/src/debug/AndroidManifest.xml:6:5-66
 MERGED from [:google_sign_in_android] /home/j0y/pdm_screen/build/google_sign_in_android/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-67

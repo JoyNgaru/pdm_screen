@@ -7,7 +7,7 @@ import 'caregiver_home_screen.dart';
 import 'register_screen.dart'; // ✅ Import the Register Screen
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();

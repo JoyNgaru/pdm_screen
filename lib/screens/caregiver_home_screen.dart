@@ -6,10 +6,10 @@ class CaregiverHomeScreen extends StatelessWidget {
   final String userId;
 
   const CaregiverHomeScreen({
-    Key? key,
+    super.key,
     required this.username,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

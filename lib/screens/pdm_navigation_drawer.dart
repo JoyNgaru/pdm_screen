@@ -5,6 +5,9 @@ import '../screens/login_screen.dart';
 import '../screens/patient_home_screen.dart';
 import '../screens/doctor_home_screen.dart';
 import '../screens/caregiver_home_screen.dart';
+import '../screens/chatbot_screen.dart';
+import '../screens/contacts_screen.dart';
+import 'package:pdm_screen/screens/chat_screen.dart';
 
 class PdmNavigationDrawer extends StatelessWidget {
   final String username;
@@ -12,11 +15,11 @@ class PdmNavigationDrawer extends StatelessWidget {
   final String role;
 
   const PdmNavigationDrawer({
-    Key? key,
+    super.key,
     required this.username,
     required this.userId,
     required this.role,
-  }) : super(key: key);
+  });
 
   void _logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
@@ -116,26 +119,54 @@ class PdmNavigationDrawer extends StatelessWidget {
             onTap: () => _navigateToHome(context),
           ),
           ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
+            leading: Icon(Icons.contacts),
+            title: Text("My Contacts"),
             onTap: () {
-              // TODO: Add navigation to Profile Screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ContactsScreen()),
+              );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Notifications'),
+            leading: const Icon(Icons.chat),
+            title: const Text('Chat'),
             onTap: () {
-              // TODO: Add navigation to Notifications Screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ChatScreen()), // Ensure this file exists
+              );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
+            leading: const Icon(Icons.sos),
+            title: const Text('SOS'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.support),
+            title: const Text('Support'),
             onTap: () {
-              // TODO: Add navigation to Settings Screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChatbotScreen()),
+              );
             },
           ),
+          if (role == 'patient') ...[
+            ListTile(
+              leading: const Icon(Icons.monitor_heart),
+              title: const Text('Monitor'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('My Info'),
+              onTap: () {},
+            ),
+          ],
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
