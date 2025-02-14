@@ -4,39 +4,41 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'patient_home_screen.dart';
 import 'doctor_home_screen.dart';
 import 'caregiver_home_screen.dart';
-import 'register_screen.dart';
+import 'register_screen.dart'; // ✅ Import the Register Screen
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+  String _errorMessage = '';
 
-  Future<void> login() async {
+  Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
     try {
-      debugPrint("🔄 Attempting login for: ${emailController.text}");
-
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim());
 
       User? user = userCredential.user;
       if (user == null) {
-        debugPrint("❌ Login failed, user is null");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login failed, please try again.")),
-        );
+        setState(() {
+          _errorMessage = "Login failed. Please try again.";
+          _isLoading = false;
+        });
         return;
       }
-
-      debugPrint("✅ Login successful! UID: ${user.uid}");
 
       // Fetch user data from Firestore
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -44,31 +46,19 @@ class _LoginScreenState extends State<LoginScreen> {
           .doc(user.uid)
           .get();
 
-      if (!userDoc.exists) {
-        debugPrint("❌ User data not found in Firestore.");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User data not found. Contact admin.")),
-        );
+      if (!userDoc.exists || !userDoc.data().toString().contains('role')) {
+        setState(() {
+          _errorMessage = "User data not found. Contact support.";
+          _isLoading = false;
+        });
         return;
       }
 
-      Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
-      String role = userData?['role']?.toString().toLowerCase() ?? "";
-      String username = userData?['username'] ??
-          emailController.text.split('@')[0]; // Default to email username
-      String userId = user.uid; // Firebase UID
+      Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
+      String role = data['role'];
+      String userId = data['pid'] ?? data['did'] ?? data['cid'] ?? "Unknown";
+      String username = data['email'].split('@')[0]; // Extract username
 
-      if (role.isEmpty) {
-        debugPrint("❌ Missing user role in Firestore");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User role missing. Contact admin.")),
-        );
-        return;
-      }
-
-      debugPrint("✅ Role: $role, Username: $username, User ID: $userId");
-
-      // Redirect based on role
       Widget homeScreen;
       switch (role) {
         case 'patient':
@@ -81,31 +71,31 @@ class _LoginScreenState extends State<LoginScreen> {
           homeScreen = CaregiverHomeScreen(username: username, userId: userId);
           break;
         default:
-          debugPrint("❌ Invalid role: $role");
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Invalid role. Contact admin.")),
-          );
+          setState(() {
+            _errorMessage = "Invalid role assigned.";
+            _isLoading = false;
+          });
           return;
       }
 
+      // Navigate to the home screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => homeScreen),
       );
-    } catch (e) {
-      debugPrint("❌ Firebase Login Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed: $e")),
-      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? "An error occurred.";
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("PD Monitor")),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -115,31 +105,55 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
+
             TextField(
-              controller: emailController,
+              controller: _emailController,
               decoration: const InputDecoration(labelText: "Email"),
               keyboardType: TextInputType.emailAddress,
             ),
+            const SizedBox(height: 15),
+
             TextField(
-              controller: passwordController,
-              obscureText: true,
+              controller: _passwordController,
               decoration: const InputDecoration(labelText: "Password"),
+              obscureText: true,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: login, child: const Text("Login")),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () {
+
+            _isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: _login,
+                    child: const Text("Login"),
+                  ),
+
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 15),
+                child: Text(
+                  _errorMessage,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+
+            const SizedBox(height: 15),
+
+            // ✅ Register Navigation
+            GestureDetector(
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const RegisterScreen()),
                 );
               },
-              child: const Text("Don't have an account? Register"),
+              child: const Text(
+                "Don't have an account? Register",
+                style: TextStyle(
+                    color: Colors.blue, decoration: TextDecoration.underline),
+              ),
             ),
           ],
         ),

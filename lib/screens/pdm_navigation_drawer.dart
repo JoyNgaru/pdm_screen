@@ -28,7 +28,6 @@ class PdmNavigationDrawer extends StatelessWidget {
 
   Future<void> _navigateToHome(BuildContext context) async {
     User? user = FirebaseAuth.instance.currentUser;
-
     if (user == null) {
       Navigator.pushReplacement(
         context,
@@ -52,9 +51,7 @@ class PdmNavigationDrawer extends StatelessWidget {
       }
 
       Map<String, dynamic>? data = userDoc.data() as Map<String, dynamic>?;
-      if (data == null ||
-          !data.containsKey('role') ||
-          !data.containsKey('id')) {
+      if (data == null || !data.containsKey('role')) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -62,19 +59,25 @@ class PdmNavigationDrawer extends StatelessWidget {
         return;
       }
 
-      String role = data['role'];
-      String userId = data['id'];
+      String role = (data['role'] as String).toLowerCase();
       String username = data['email'].split('@')[0];
+      String userId = data.containsKey('pid')
+          ? data['pid']
+          : data.containsKey('did')
+              ? data['did']
+              : data.containsKey('cid')
+                  ? data['cid']
+                  : "0000"; // Default ID
 
       Widget homeScreen;
       switch (role) {
-        case 'Patient':
+        case 'patient':
           homeScreen = PatientHomeScreen(username: username, userId: userId);
           break;
-        case 'Doctor':
+        case 'doctor':
           homeScreen = DoctorHomeScreen(username: username, userId: userId);
           break;
-        case 'Caregiver':
+        case 'caregiver':
           homeScreen = CaregiverHomeScreen(username: username, userId: userId);
           break;
         default:
@@ -110,8 +113,7 @@ class PdmNavigationDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home'),
-            onTap: () => _navigateToHome(
-                context), // ✅ Navigate to the correct home screen
+            onTap: () => _navigateToHome(context),
           ),
           ListTile(
             leading: const Icon(Icons.person),
@@ -138,7 +140,7 @@ class PdmNavigationDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Logout', style: TextStyle(color: Colors.red)),
-            onTap: () => _logout(context), // ✅ Logout function
+            onTap: () => _logout(context),
           ),
         ],
       ),
