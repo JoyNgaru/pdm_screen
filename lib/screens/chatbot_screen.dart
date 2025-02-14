@@ -11,55 +11,41 @@ class ChatbotScreen extends StatefulWidget {
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, String>> messages = [];
-  final String deepSeekApiKey =
-      dotenv.env['DEEPSEEK_API_KEY'] ?? ""; // Secure API key
+  final String apiKey = dotenv.env['MISTRAL_API_KEY'] ?? ""; // Secure API key
 
   Future<void> sendMessage(String message) async {
-    if (message.trim().isEmpty) return;
-
     setState(() {
       messages.add({"role": "user", "content": message});
     });
 
-    try {
-      final response = await http.post(
-        Uri.parse("https://api.deepseek.com/v1/chat/completions"),
-        headers: {
-          "Authorization": "Bearer $deepSeekApiKey",
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          "model": "deepseek-chat",
-          "messages": [
-            {"role": "system", "content": "You are a helpful AI assistant."},
-            ...messages
-          ],
-        }),
-      );
+    final response = await http.post(
+      Uri.parse("https://api.mistral.ai/v1/chat/completions"),
+      headers: {
+        "Authorization": "Bearer $apiKey",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "model": "mistral-tiny",
+        "messages": [
+          {"role": "system", "content": "You are a helpful chatbot."},
+          ...messages.map((msg) => msg),
+        ],
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        setState(() {
-          messages.add({
-            "role": "assistant",
-            "content": responseData['choices'][0]['message']['content']
-          });
-        });
-      } else {
-        debugPrint("❌ API Error: ${response.body}");
-        setState(() {
-          messages.add({
-            "role": "assistant",
-            "content": "Sorry, I couldn't process that. Try again!"
-          });
-        });
-      }
-    } catch (e) {
-      debugPrint("❌ Network Error: $e");
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
       setState(() {
         messages.add({
           "role": "assistant",
-          "content": "Network error. Please check your internet connection."
+          "content": responseData['choices'][0]['message']['content']
+        });
+      });
+    } else {
+      setState(() {
+        messages.add({
+          "role": "assistant",
+          "content": "Sorry, I couldn't process that. Try again."
         });
       });
     }
