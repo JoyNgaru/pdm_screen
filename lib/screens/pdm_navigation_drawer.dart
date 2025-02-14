@@ -134,9 +134,7 @@ class PdmNavigationDrawer extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ChatScreen()), // Ensure this file exists
+                MaterialPageRoute(builder: (context) => ChatScreen()),
               );
             },
           ),

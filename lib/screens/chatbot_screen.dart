@@ -10,54 +10,56 @@ class ChatbotScreen extends StatefulWidget {
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, String>> messages = []; // Stores chat history
-  final String openAiApiKey =
-      dotenv.env['OPENAI_API_KEY'] ?? ""; // Secure API key
+  final List<Map<String, String>> messages = [];
+  final String deepSeekApiKey =
+      dotenv.env['DEEPSEEK_API_KEY'] ?? ""; // Secure API key
 
   Future<void> sendMessage(String message) async {
-    if (message.trim().isEmpty) return; // Don't send empty messages
+    if (message.trim().isEmpty) return;
 
     setState(() {
       messages.add({"role": "user", "content": message});
     });
 
-    // Keep only the last 10 messages (so AI remembers context)
-    if (messages.length > 10) {
-      messages.removeAt(0);
-    }
+    try {
+      final response = await http.post(
+        Uri.parse("https://api.deepseek.com/v1/chat/completions"),
+        headers: {
+          "Authorization": "Bearer $deepSeekApiKey",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "model": "deepseek-chat",
+          "messages": [
+            {"role": "system", "content": "You are a helpful AI assistant."},
+            ...messages
+          ],
+        }),
+      );
 
-    final response = await http.post(
-      Uri.parse("https://api.openai.com/v1/chat/completions"),
-      headers: {
-        "Authorization": "Bearer $openAiApiKey",
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({
-        "model": "gpt-4", // Use GPT-4 for better responses
-        "messages": [
-          {
-            "role": "system",
-            "content":
-                "You are an AI assistant. Provide clear, intelligent, and detailed answers in a friendly and professional tone."
-          },
-          ...messages // Pass previous messages so the chatbot remembers context
-        ],
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      setState(() {
-        messages.add({
-          "role": "assistant",
-          "content": responseData['choices'][0]['message']['content']
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        setState(() {
+          messages.add({
+            "role": "assistant",
+            "content": responseData['choices'][0]['message']['content']
+          });
         });
-      });
-    } else {
+      } else {
+        debugPrint("❌ API Error: ${response.body}");
+        setState(() {
+          messages.add({
+            "role": "assistant",
+            "content": "Sorry, I couldn't process that. Try again!"
+          });
+        });
+      }
+    } catch (e) {
+      debugPrint("❌ Network Error: $e");
       setState(() {
         messages.add({
           "role": "assistant",
-          "content": "Sorry, I couldn't process that. Try again!"
+          "content": "Network error. Please check your internet connection."
         });
       });
     }
@@ -74,21 +76,21 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
-                return Align(
-                  alignment: message["role"] == "user"
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: message["role"] == "user"
-                          ? Colors.blue[200]
-                          : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(8),
+                return ListTile(
+                  title: Align(
+                    alignment: message["role"] == "user"
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: message["role"] == "user"
+                            ? Colors.blue[200]
+                            : Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(message["content"]!),
                     ),
-                    child: Text(message["content"]!,
-                        style: TextStyle(fontSize: 16)),
                   ),
                 );
               },
@@ -101,20 +103,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: "Ask something...",
-                      border: OutlineInputBorder(),
-                    ),
-                    onSubmitted: (text) {
-                      if (text.isNotEmpty) {
-                        sendMessage(text);
-                        _controller.clear();
-                      }
-                    },
+                    decoration: InputDecoration(hintText: "Ask something..."),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send, color: Colors.blue),
+                  icon: Icon(Icons.send),
                   onPressed: () {
                     if (_controller.text.isNotEmpty) {
                       sendMessage(_controller.text);

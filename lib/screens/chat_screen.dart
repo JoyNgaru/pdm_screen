@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'chat_page.dart'; // Import ChatPage
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -8,97 +9,93 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _controller = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late User _currentUser;
+  List<Map<String, String>> contacts = [];
+  bool isLoading = true; // Track loading state
 
   @override
   void initState() {
     super.initState();
-    _currentUser = _auth.currentUser!;
+    fetchContacts();
   }
 
-  void sendMessage() async {
-    if (_controller.text.trim().isEmpty) return;
+  // Fetch contacts from Firestore subcollection
+  Future<void> fetchContacts() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
 
-    await _firestore.collection('chats').add({
-      'text': _controller.text,
-      'senderId': _currentUser.uid,
-      'senderEmail': _currentUser.email,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+    try {
+      final contactsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('contacts') // ✅ Fetch from subcollection
+          .get();
 
-    _controller.clear();
+      if (contactsSnapshot.docs.isEmpty) {
+        print("No contacts found in Firestore!");
+      }
+
+      List<Map<String, String>> loadedContacts = [];
+
+      for (var doc in contactsSnapshot.docs) {
+        final data = doc.data();
+        print("Fetched Contact: $data"); // Debugging Output
+
+        loadedContacts.add({
+          "id": data["id"] ?? "",
+          "name": data["name"] ?? "Unknown",
+          "email": data["email"] ?? "No Email",
+          "role": data["role"] ?? "No Role",
+        });
+      }
+
+      setState(() {
+        contacts = loadedContacts;
+        isLoading = false; // Stop loading indicator
+      });
+
+      print("Final Contacts List: $contacts");
+    } catch (e) {
+      print("Error fetching contacts: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Chat")),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _firestore
-                  .collection('chats')
-                  .orderBy('timestamp', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final messages = snapshot.data!.docs;
-                return ListView.builder(
-                  reverse: true,
-                  itemCount: messages.length,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator()) // Show loading
+          : contacts.isEmpty
+              ? const Center(child: Text("No contacts found"))
+              : ListView.builder(
+                  itemCount: contacts.length,
                   itemBuilder: (context, index) {
-                    final message = messages[index];
-                    final isMe = message['senderId'] == _currentUser.uid;
-
-                    return Align(
-                      alignment:
-                          isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isMe ? Colors.blue[200] : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          message['text'],
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
+                    final contact = contacts[index];
+                    return ListTile(
+                      leading: const Icon(Icons.person),
+                      title: Text(contact["name"] ?? "Unknown"),
+                      subtitle:
+                          Text("${contact["email"]} • ${contact["role"]}"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(
+                              receiverId: contact["id"]!,
+                              receiverName: contact["name"]!,
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: "Type a message...",
-                    ),
-                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.blue),
-                  onPressed: sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: fetchContacts, // Refresh Contacts
+        child: const Icon(Icons.refresh),
       ),
     );
   }
