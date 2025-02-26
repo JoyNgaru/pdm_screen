@@ -1,4 +1,4 @@
-# PD Monitor - README
+# PD Monitor
 
 ## Introduction
 PD Monitor is a Flutter-based mobile application designed for Parkinson's Disease telemonitoring. It integrates with an **Arduino Nano 33 BLE** device to collect and analyze motion and audio data to monitor symptoms.
